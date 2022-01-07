@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Spinner from "../shared/Spinner";
 
 const GITHUB_URL = process.env.REACT_APP_GITHUB_URL;
 const TOKEN = process.env.REACT_APP_GITHUB_TOKEN;
@@ -31,7 +32,7 @@ function UserResults() {
       </div>
     );
   } else {
-    return <h3>Loading...</h3>;
+    return <Spinner />;
   }
 }
 
