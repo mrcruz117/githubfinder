@@ -1,5 +1,5 @@
-import { createContext, useReducer, useEffect } from "react";
-import githubReducer from "./GithubReducer";
+import { createContext, useReducer, useEffect } from 'react';
+import githubReducer from './GithubReducer';
 
 const GithubContext = createContext();
 
@@ -10,6 +10,7 @@ export const GithubProvider = ({ children }) => {
   const initialState = {
     users: [],
     user: {},
+    repos: [],
     loading: false,
   };
 
@@ -30,7 +31,7 @@ export const GithubProvider = ({ children }) => {
     const { items } = await response.json();
 
     dispatch({
-      type: "GET_USERS",
+      type: 'GET_USERS',
       payload: items,
     });
   };
@@ -44,26 +45,49 @@ export const GithubProvider = ({ children }) => {
       },
     });
     if (response.status === 404) {
-      window.location = "/notfound";
+      window.location = '/notfound';
     } else {
       const data = await response.json();
 
       dispatch({
-        type: "GET_USER",
+        type: 'GET_USER',
         payload: data,
       });
     }
   };
 
+  // get user repos
+  const getUserRepos = async (login) => {
+    setLoading();
+
+    const params = new URLSearchParams({ sort: 'created', per_page: 10 });
+
+    const response = await fetch(
+      `${GITHUB_URL}/users/${login}/repos?${params}`,
+      {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    dispatch({
+      type: 'GET_REPOS',
+      payload: data,
+    });
+  };
+
   // Set loading
   const setLoading = () =>
     dispatch({
-      type: "SET_LOADING",
+      type: 'SET_LOADING',
     });
 
   const clearUsers = () => {
     dispatch({
-      type: "CLEAR_USERS",
+      type: 'CLEAR_USERS',
     });
   };
 
@@ -73,9 +97,11 @@ export const GithubProvider = ({ children }) => {
         users: state.users,
         loading: state.loading,
         user: state.user,
+        repos: state.repos,
         searchUsers,
         clearUsers,
         getUser,
+        getUserRepos,
       }}
     >
       {children}
